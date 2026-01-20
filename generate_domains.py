@@ -340,7 +340,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </div>
     </div>
     <footer class="footer">
-        © 2025 BlackRoad OS, Inc. • Built with 💚 • <a href="https://pitstop.blackroad.io" style="color: #666;">Portal</a>
+        © 2026 BlackRoad OS, Inc. • Built with 💚 • <a href="https://pitstop.blackroad.io" style="color: #666;">Portal</a>
     </footer>
 </body>
 </html>
@@ -372,7 +372,9 @@ def main():
     """Generate all domain HTML files"""
     import os
 
-    output_dir = "/Users/alexa/blackroad-domains/pages"
+    # Use path relative to script location for portability
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(script_dir, "pages")
     os.makedirs(output_dir, exist_ok=True)
 
     print("🚀 BlackRoad OS Domain HTML Generator")
