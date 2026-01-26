@@ -7,7 +7,9 @@ echo "🚀 BlackRoad OS - Domain Deployment"
 echo "===================================="
 echo ""
 
-PAGES_DIR="/Users/alexa/blackroad-domains/pages"
+# Use script directory to make paths portable
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PAGES_DIR="$SCRIPT_DIR/pages"
 OAUTH_TOKEN="R2q-iVO-MihvU5kO-twZXOhy9j5i43CSbwCV6CRLtOk.5AaPL16tW7iy2nh2Q-cTYfF2TFbfcw7Y-Ka9J44Upls"
 ACCOUNT_ID="848cf0b18d51e0170e0d1537aec3505a"
 
