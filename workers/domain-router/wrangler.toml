@@ -1,0 +1,17 @@
+name = "blackroad-domain-router"
+main = "worker.js"
+compatibility_date = "2024-12-01"
+account_id = "" # Set via CLOUDFLARE_ACCOUNT_ID secret or wrangler config
+
+# Custom domains routed by this worker
+# routes = [
+#   { pattern = "blackroad.io/*", zone_name = "blackroad.io" },
+#   { pattern = "blackroad.me/*", zone_name = "blackroad.me" },
+#   { pattern = "blackroad.network/*", zone_name = "blackroad.network" },
+#   { pattern = "blackroad.systems/*", zone_name = "blackroad.systems" },
+#   { pattern = "lucidia.earth/*", zone_name = "lucidia.earth" },
+#   { pattern = "lucidia.studio/*", zone_name = "lucidia.studio" },
+# ]
+
+[observability]
+enabled = true

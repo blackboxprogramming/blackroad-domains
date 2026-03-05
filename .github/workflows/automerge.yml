@@ -1,0 +1,50 @@
+name: Automerge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  check_suite:
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge-dependabot:
+    name: Automerge Dependabot PRs
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@d7267f607e9d3fb96fc2fbe83e0af444e5e81e90 # v2.4.0
+        with:
+          github-token: ${{ github.token }}
+
+      - name: Approve minor and patch updates
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: gh pr review "$PR_URL" --approve
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Enable auto-merge for minor and patch updates
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: gh pr merge "$PR_URL" --auto --squash
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ github.token }}
+
+  automerge-labeled:
+    name: Automerge Labeled PRs
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+
+    steps:
+      - name: Enable auto-merge
+        run: gh pr merge "$PR_URL" --auto --squash
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ github.token }}

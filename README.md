@@ -1,17 +1,29 @@
-# BlackRoad Domains - Complete Infrastructure Documentation
+# BlackRoad Domains
 
 **Owner:** Alexa Louise Amundson
-**Organization:** BlackRoad Inc.
+**Organization:** BlackRoad OS, Inc.
 **Email:** amundsonalexa@gmail.com | blackroad.systems@gmail.com
-**Last Updated:** 2025-12-22
+**Last Updated:** 2026-03-05
 
 ---
 
-## 🌐 Overview
+## Status
 
-Complete canonical documentation for all BlackRoad infrastructure:
+| System | Status |
+|--------|--------|
+| CI / Guard | `CORE CI` validates repo structure, HTML, YAML |
+| Auto Deploy | Static site deploy to Cloudflare Pages on push to main |
+| Security Scan | CodeQL + dependency review on PRs and weekly schedule |
+| Self-Healing | Health checks every 6 hours with auto-rollback |
+| Automerge | Dependabot PRs auto-approved and squash-merged |
+| Domain Router | Cloudflare Worker routes all 19 domains to Pages projects |
+| Dependabot | GitHub Actions updates weekly (Mondays) |
 
-- **19 GoDaddy Registered Domains**
+---
+
+## Infrastructure
+
+- **19 GoDaddy Registered Domains** (all on Cloudflare DNS)
 - **58 Cloudflare Pages Projects**
 - **15 GitHub Organizations**
 - **40+ GitHub Repositories**
@@ -20,22 +32,10 @@ Complete canonical documentation for all BlackRoad infrastructure:
 
 ---
 
-## 📚 Documentation Files
-
-1. **BLACKROAD_CANONICAL_TRUTH.md** ⭐ - Master source of truth
-2. **COMPLETE_DOMAIN_MASTER_LIST.md** - All domains & projects
-3. **LUCIDIA_EARTH_INFRASTRUCTURE.md** - Infrastructure guide
-4. **QUICK_DEPLOY.md** - Fast reference
-5. **ALL_DOMAINS_REFERENCE.md** - Domain routing
-6. **blackroad-deploy-all.sh** - Master deployment
-7. **blackroad-netdump.sh** - Network inventory
-
----
-
-## 🌍 All 19 Registered Domains
+## All 19 Registered Domains
 
 ### Lucidia
-- lucidia.earth ⭐ (Metaverse)
+- lucidia.earth (Metaverse)
 - lucidia.studio
 - lucidiaqi.com
 
@@ -49,7 +49,7 @@ Complete canonical documentation for all BlackRoad infrastructure:
 ### AI & Quantum
 - blackroadai.com
 - blackroadqi.com
-- blackroadquantum.com/info/net/shop/store
+- blackroadquantum.com / .info / .net / .shop / .store
 
 ### Blockchain
 - roadchain.io
@@ -63,48 +63,97 @@ Complete canonical documentation for all BlackRoad infrastructure:
 
 ---
 
-## 🚀 Quick Start
+## Workflows
 
+All GitHub Actions are **pinned to specific commit hashes** for supply-chain security.
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `auto-deploy.yml` | Push to main/master | Auto-detect project type, deploy to Cloudflare Pages or Railway |
+| `automerge.yml` | PR events | Auto-approve and merge Dependabot minor/patch PRs |
+| `core-ci.yml` | PRs and pushes | Validate repo structure, HTML files, YAML syntax |
+| `deploy.yml` | Push to main/master | Direct static site deploy to Cloudflare Pages |
+| `deploy-worker.yml` | Push to `workers/**` | Deploy domain router Cloudflare Worker |
+| `auto-label.yml` | PR opened | Auto-label PRs as "labs" or "core" |
+| `failure-issue.yml` | CI failure | Auto-create GitHub issues on CI failures |
+| `project-sync.yml` | PR opened | Add PRs to project board |
+| `security-scan.yml` | PRs, pushes, weekly | CodeQL analysis and dependency scanning |
+| `self-healing.yml` | Every 6 hours | Health checks with auto-rollback |
+
+---
+
+## Cloudflare Worker
+
+The domain router worker (`workers/domain-router/worker.js`) handles:
+- Routing all 19 domains to their Cloudflare Pages projects
+- `/api/health` endpoint for monitoring
+- Security headers (HSTS, X-Frame-Options, Referrer-Policy)
+- www subdomain support for all domains
+
+Deploy manually:
 ```bash
-# Deploy everything
-~/blackroad-deploy-all.sh
-
-# Get network inventory
-~/blackroad-netdump.sh
-
-# Deploy specific project
-wrangler pages deploy dist --project-name=lucidia-earth
+cd workers/domain-router
+wrangler deploy
 ```
 
 ---
 
-**"The road remembers everything. So do we."** 🛣️
+## Quick Start
+
+```bash
+# Deploy static sites to Cloudflare Pages
+wrangler pages deploy . --project-name=blackroad-domains
+
+# Deploy domain router worker
+cd workers/domain-router && wrangler deploy
+
+# Deploy specific domain project
+wrangler pages deploy blackroad-io/ --project-name=blackroad-io
+
+# List all Cloudflare Pages projects
+wrangler pages project list
+
+# Run network inventory
+./blackroad-netdump.sh
+```
 
 ---
 
-## 📜 License & Copyright
+## Documentation
 
-**Copyright © 2026 BlackRoad OS, Inc. All Rights Reserved.**
+| File | Purpose |
+|------|---------|
+| `BLACKROAD_CANONICAL_TRUTH.md` | Master source of truth |
+| `COMPLETE_DOMAIN_MASTER_LIST.md` | All domains and projects |
+| `LUCIDIA_EARTH_INFRASTRUCTURE.md` | Infrastructure guide |
+| `QUICK_DEPLOY.md` | Fast deployment reference |
+| `ALL_DOMAINS_REFERENCE.md` | Domain routing details |
+| `CONTRIBUTING.md` | Contribution guidelines |
 
-**CEO:** Alexa Amundson
+---
 
-**PROPRIETARY AND CONFIDENTIAL**
+## License & Copyright
 
-This software is the proprietary property of BlackRoad OS, Inc. and is **NOT for commercial resale**.
+**Copyright 2024-2026 BlackRoad OS, Inc. All Rights Reserved.**
 
-### ⚠️ Usage Restrictions:
-- ✅ **Permitted:** Testing, evaluation, and educational purposes
-- ❌ **Prohibited:** Commercial use, resale, or redistribution without written permission
+**CEO:** Alexa Louise Amundson (Sole Stockholder)
+**Incorporation:** Delaware C-Corporation
 
-### 🏢 Enterprise Scale:
-Designed to support:
+**PROPRIETARY AND CONFIDENTIAL** - This software is NOT open source.
+
+### Usage Restrictions
+- **Permitted:** Testing, evaluation, and educational purposes
+- **Prohibited:** Commercial use, resale, or redistribution without written permission
+
+### Enterprise Scale
 - 30,000 AI Agents
 - 30,000 Human Employees
 - One Operator: Alexa Amundson (CEO)
 
-### 📧 Contact:
-For commercial licensing inquiries:
-- **Email:** blackroad.systems@gmail.com
-- **Organization:** BlackRoad OS, Inc.
+### Stripe Products & Assets
+All Stripe products, payment integrations, and digital assets are proprietary to BlackRoad OS, Inc.
+
+### Contact
+For commercial licensing inquiries: blackroad.systems@gmail.com
 
 See [LICENSE](LICENSE) for complete terms.

@@ -2,20 +2,89 @@ name: CORE CI
 
 on:
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
   push:
-    branches: [ main, master ]
+    branches: [main, master]
+
+permissions:
+  contents: read
 
 jobs:
   guard:
+    name: Guardrail
     runs-on: ubuntu-latest
     steps:
-      - name: Guardrail
-        run: echo "CORE repo guardrail active"
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
-  lint:
+      - name: Validate Repository Structure
+        run: |
+          echo "=== BlackRoad Domains CI Guard ==="
+          ERRORS=0
+
+          # Verify LICENSE exists
+          if [ ! -f "LICENSE" ]; then
+            echo "FAIL: LICENSE file missing"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "PASS: LICENSE file present"
+          fi
+
+          # Verify README exists
+          if [ ! -f "README.md" ]; then
+            echo "FAIL: README.md missing"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "PASS: README.md present"
+          fi
+
+          # Verify domain directories have index.html
+          for dir in blackroad-io blackroad-me blackroad-network blackroad-systems lucidia-earth lucidia-studio; do
+            if [ -d "$dir" ] && [ ! -f "$dir/index.html" ]; then
+              echo "FAIL: $dir/index.html missing"
+              ERRORS=$((ERRORS + 1))
+            elif [ -d "$dir" ]; then
+              echo "PASS: $dir/index.html present"
+            fi
+          done
+
+          # Verify workflow files are valid YAML
+          for f in .github/workflows/*.yml; do
+            if python3 -c "import yaml; yaml.safe_load(open('$f'))" 2>/dev/null; then
+              echo "PASS: $f is valid YAML"
+            else
+              echo "FAIL: $f is invalid YAML"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+
+          if [ $ERRORS -gt 0 ]; then
+            echo "=== $ERRORS error(s) found ==="
+            exit 1
+          fi
+          echo "=== All checks passed ==="
+
+  validate-html:
+    name: Validate HTML
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Lint placeholder
-        run: echo "Add lint/test here"
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Check HTML files for basic validity
+        run: |
+          ERRORS=0
+          for f in $(find . -name "*.html" -not -path "./.git/*"); do
+            if ! grep -q "<html" "$f"; then
+              echo "WARN: $f may not be valid HTML (missing <html> tag)"
+            fi
+            if ! grep -q "</html>" "$f"; then
+              echo "FAIL: $f missing closing </html> tag"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          if [ $ERRORS -gt 0 ]; then
+            echo "$ERRORS HTML file(s) with issues"
+            exit 1
+          fi
+          echo "All HTML files validated"

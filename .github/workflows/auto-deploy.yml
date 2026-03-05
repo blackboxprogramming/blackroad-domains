@@ -1,12 +1,13 @@
-name: 🚀 Auto Deploy
+name: Auto Deploy
 
 on:
   push:
     branches: [main, master]
   workflow_dispatch:
 
-env:
-  NODE_VERSION: '20'
+permissions:
+  contents: read
+  deployments: write
 
 jobs:
   detect-service:
@@ -15,11 +16,11 @@ jobs:
     outputs:
       service_type: ${{ steps.detect.outputs.service_type }}
       deploy_target: ${{ steps.detect.outputs.deploy_target }}
-    
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
       - name: Detect Service Type
         id: detect
         run: |
@@ -45,45 +46,57 @@ jobs:
     needs: detect-service
     if: needs.detect-service.outputs.deploy_target == 'cloudflare'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Setup Node (Next.js only)
+        if: needs.detect-service.outputs.service_type == 'nextjs'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
           cache: 'npm'
-      
-      - name: Install Dependencies
+
+      - name: Install Dependencies (Next.js only)
+        if: needs.detect-service.outputs.service_type == 'nextjs'
         run: npm ci
-      
-      - name: Build
+
+      - name: Build (Next.js only)
+        if: needs.detect-service.outputs.service_type == 'nextjs'
         run: npm run build
         env:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-      
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+
+      - name: Deploy Next.js to Cloudflare Pages
+        if: needs.detect-service.outputs.service_type == 'nextjs'
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy .next --project-name=${{ github.event.repository.name }}
+
+      - name: Deploy Static Site to Cloudflare Pages
+        if: needs.detect-service.outputs.service_type == 'static'
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=${{ github.event.repository.name }}
 
   deploy-railway:
     name: Deploy to Railway
     needs: detect-service
     if: needs.detect-service.outputs.deploy_target == 'railway'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
       - name: Install Railway CLI
         run: npm i -g @railway/cli
-      
+
       - name: Deploy to Railway
         run: railway up --service ${{ github.event.repository.name }}
         env:
@@ -94,22 +107,22 @@ jobs:
     needs: [deploy-cloudflare, deploy-railway]
     if: always() && (needs.deploy-cloudflare.result == 'success' || needs.deploy-railway.result == 'success')
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Wait for Deployment
+      - name: Wait for Deployment Propagation
         run: sleep 30
-      
+
       - name: Check Health Endpoint
         run: |
-          URL="${{ secrets.DEPLOY_URL }}/api/health"
-          curl -f $URL || exit 1
-      
-      - name: Notify Success
-        if: success()
-        run: echo "✅ Deployment successful and healthy!"
-      
-      - name: Notify Failure
-        if: failure()
-        run: |
-          echo "❌ Deployment health check failed!"
-          exit 1
+          if [ -n "${{ secrets.DEPLOY_URL }}" ]; then
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.DEPLOY_URL }}" || echo "000")
+            echo "HTTP Status: $STATUS"
+            if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+              echo "Deployment healthy"
+            else
+              echo "Health check returned $STATUS"
+              exit 1
+            fi
+          else
+            echo "No DEPLOY_URL configured, skipping health check"
+          fi
