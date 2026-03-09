@@ -9,7 +9,9 @@ import subprocess
 import time
 import shutil
 
-PAGES_DIR = "/Users/alexa/blackroad-domains/pages"
+# Use script directory to make paths portable
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PAGES_DIR = os.path.join(SCRIPT_DIR, "pages")
 
 # Domain to Project mapping
 DEPLOYMENTS = {
