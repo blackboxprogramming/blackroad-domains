@@ -1,13 +1,8 @@
 # BlackRoad Domains - Complete Infrastructure Documentation
 
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-48%2B_domains-F38020.svg)](https://cloudflare.com)
-[![DNS](https://img.shields.io/badge/DNS-infrastructure-3776AB.svg)](https://blackroad.io)
-
-
-
 **Owner:** Alexa Louise Amundson
 **Organization:** BlackRoad Inc.
-**Email:** amundsonalexa@gmail.com | blackroad.systems@gmail.com
+**Email:** blackroad@gmail.com | blackroad.systems@gmail.com
 **Last Updated:** 2025-12-22
 
 ---
@@ -84,3 +79,32 @@ wrangler pages deploy dist --project-name=lucidia-earth
 ---
 
 **"The road remembers everything. So do we."** 🛣️
+
+---
+
+## 📜 License & Copyright
+
+**Copyright © 2026 BlackRoad OS, Inc. All Rights Reserved.**
+
+**CEO:** Alexa Amundson
+
+**PROPRIETARY AND CONFIDENTIAL**
+
+This software is the proprietary property of BlackRoad OS, Inc. and is **NOT for commercial resale**.
+
+### ⚠️ Usage Restrictions:
+- ✅ **Permitted:** Testing, evaluation, and educational purposes
+- ❌ **Prohibited:** Commercial use, resale, or redistribution without written permission
+
+### 🏢 Enterprise Scale:
+Designed to support:
+- 30,000 AI Agents
+- 30,000 Human Employees
+- One Operator: Alexa Amundson (CEO)
+
+### 📧 Contact:
+For commercial licensing inquiries:
+- **Email:** blackroad.systems@gmail.com
+- **Organization:** BlackRoad OS, Inc.
+
+See [LICENSE](LICENSE) for complete terms.

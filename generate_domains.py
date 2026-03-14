@@ -372,9 +372,7 @@ def main():
     """Generate all domain HTML files"""
     import os
 
-    # Use script directory to make paths portable
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_dir, "pages")
+    output_dir = "/Users/alexa/blackroad-domains/pages"
     os.makedirs(output_dir, exist_ok=True)
 
     print("🚀 BlackRoad OS Domain HTML Generator")
